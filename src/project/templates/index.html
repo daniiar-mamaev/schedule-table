@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Schedule Table</title>
+        <link rel="stylesheet" href="/static/css/styles.css" />
+        <!-- Vue -->
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+        <script defer src="/static/vue/app.js"></script>
+
+        <title>Schedule</title>
+    </head>
+    <body>
+        <div id="app">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Person</th>
+                        <th v-for="day in days" :key="day" v-text="day"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="person in people" :key="person">
+                        <td v-text="person"></td>
+                        <td
+                            v-for="day in days"
+                            :key="day"
+                            @mousedown="startDrag(person, day)"
+                            @mouseup="endDrag(person, day)"
+                        >
+                            <div
+                                v-if="isBlock(person, day)"
+                                class="block"
+                                v-text="getTask(person, day)"
+                            ></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
