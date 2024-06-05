@@ -33,12 +33,39 @@
                             <div
                                 v-if="isBlock(person, day)"
                                 class="block"
-                                v-text="getTask(person, day)"
+                                @click="openModal(getTask(person, day))"
+                                v-text="getTask(person, day).task"
                             ></div>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <div v-if="showModal" class="modal">
+                <h2>Edit Task</h2>
+
+                <label>
+                    Person:
+                    <input v-model="selectedTask.person" />
+                </label>
+
+                <label>
+                    Task:
+                    <input v-model="selectedTask.task" />
+                </label>
+
+                <label>
+                    Start Day:
+                    <input v-model="selectedTask.start_day" />
+                </label>
+
+                <label>
+                    End Day:
+                    <input v-model="selectedTask.end_day" />
+                </label>
+
+                <button @click="saveAndClose">Save</button>
+                <button @click="showModal = false">Close</button>
+            </div>
         </div>
     </body>
 </html>

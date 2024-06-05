@@ -25,8 +25,7 @@ createApp({
                 start_day: this.dragStart.day,
                 end_day: day,
             };
-            this.blocks.push(this.newBlock);
-            this.saveSchedule();
+            this.saveSchedule(this.newBlock);
         },
         isBlock(person, day) {
             return this.blocks.some(
@@ -43,18 +42,28 @@ createApp({
             const block = this.blocks.find(
                 (block) => block.person === person && this.isInRange(block, day)
             );
-            return block ? block.task : "";
+            return block || null;
         },
-        async saveSchedule() {
+        async saveSchedule(newBlock) {
             const response = await fetch("/api/schedule", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ blocks: this.blocks }),
+                body: JSON.stringify(newBlock),
             });
+            window.location.reload();
             const data = await response.json();
             console.log(data.message);
+        },
+        openModal(task) {
+            this.selectedTask = task;
+            this.showModal = true;
+            console.log(this.selectedTask);
+        },
+        saveAndClose() {
+            // Save the task to the database here...
+            this.showModal = false;
         },
     },
     data() {
@@ -65,6 +74,8 @@ createApp({
             dragging: false,
             dragStart: null,
             newBlock: null,
+            showModal: false,
+            selectedTask: null,
         };
     },
 }).mount("#app");

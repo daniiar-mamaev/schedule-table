@@ -16,3 +16,25 @@ th {
   padding: 5px;
   border-radius: 3px;
 }
+.modal {
+  position: fixed; /* Position it fixed to the viewport */
+  top: 50%; /* Center it vertically */
+  left: 50%; /* Center it horizontally */
+  transform: translate(-50%, -50%); /* Adjust for the size of the modal */
+  z-index: 1000; /* Make it appear in front of other objects */
+  background: white; /* Give it a background */
+  padding: 20px; /* Add some padding */
+  border-radius: 10px; /* Round the corners */
+  width: 80%; /* Make it take up 80% of the viewport width */
+  max-width: 400px; /* But don't let it get too wide */
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  z-index: 999; /* Just below the modal */
+}

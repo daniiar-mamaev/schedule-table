@@ -61,14 +61,17 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/api/schedule", response_model=Schedule)
+@app.get("/api/schedule")
 async def get_schedule():
     blocks = await collection.find().to_list(1000)
+    for block in blocks:
+        block["_id"] = str(block["_id"])
     return {"blocks": blocks}
 
 
 @app.post("/api/schedule")
-async def update_schedule(schedule: Schedule):
-    await collection.drop()
-    await collection.insert_many([block.dict() for block in schedule.blocks])
+async def update_schedule(block: Block):
+    await collection.insert_one(block.model_dump())
     return {"message": "Schedule updated successfully"}
+
+
