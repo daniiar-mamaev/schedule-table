@@ -1,6 +1,7 @@
 import os
 
 import motor.motor_asyncio
+from bson import ObjectId
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -47,9 +48,9 @@ collection = db.schedule
 # Pydantic models
 class Block(BaseModel):
     person: str
-    task: str
-    start_day: str
-    end_day: str
+    task: str | None = None
+    start_day: str | None = None
+    end_day: str | None = None
 
 
 class Schedule(BaseModel):
@@ -69,9 +70,34 @@ async def get_schedule():
     return {"blocks": blocks}
 
 
-@app.post("/api/schedule")
-async def update_schedule(block: Block):
-    await collection.insert_one(block.model_dump())
+@app.post("/api/task/add")
+async def update_schedule(body: dict):
+    body_id = body.pop("_id")
+    await collection.update_one({"_id": ObjectId(body_id)}, {"$set": body})
+
     return {"message": "Schedule updated successfully"}
 
 
+@app.post("/api/task/edit")
+async def edit_task(body: dict):
+    body_id = body.pop("_id")
+    await collection.update_one({"_id": ObjectId(body_id)}, {"$set": body})
+
+    return {"message": "Task updated successfully"}
+
+
+@app.get("/api/people")
+async def get_people():
+    people = await collection.find({}).to_list(1000)
+    response = {}
+    for person in people:
+        person["_id"] = str(person["_id"])
+        response[person["person"]] = str(person["_id"])
+    print(response)
+    return response
+
+
+@app.post("/api/person/add")
+async def add_person(block: Block):
+    await collection.insert_one(block.model_dump())
+    return {"message": "Person added successfully"}

@@ -3,8 +3,28 @@ const { createApp } = Vue;
 createApp({
     created() {
         this.fetchSchedule();
+        this.fetchPeople();
     },
     methods: {
+        async addPerson() {
+            const person = prompt("Enter name:");
+            if (!person) return;
+            const response = await fetch("/api/person/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ person }),
+            });
+            if (response.ok) {
+                this.people.push(person);
+            }
+        },
+        async fetchPeople() {
+            const response = await fetch("/api/people");
+            const data = await response.json();
+            this.people = Object.values(data.people);
+        },
         async fetchSchedule() {
             const response = await fetch("/api/schedule");
             const data = await response.json();
@@ -14,18 +34,19 @@ createApp({
             this.dragging = true;
             this.dragStart = { person, day };
         },
-        endDrag(person, day) {
+        endDrag(person, day, personIndex) {
             if (!this.dragging) return;
             this.dragging = false;
             const task = prompt("Enter task:");
             if (!task) return;
             this.newBlock = {
+                _id: personIndex,
                 person,
                 task,
                 start_day: this.dragStart.day,
                 end_day: day,
             };
-            this.saveSchedule(this.newBlock);
+            this.addTask(this.newBlock);
         },
         isBlock(person, day) {
             return this.blocks.some(
@@ -44,15 +65,14 @@ createApp({
             );
             return block || null;
         },
-        async saveSchedule(newBlock) {
-            const response = await fetch("/api/schedule", {
+        async addTask(newBlock) {
+            const response = await fetch("/api/task/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(newBlock),
             });
-            window.location.reload();
             const data = await response.json();
             console.log(data.message);
         },
@@ -61,14 +81,21 @@ createApp({
             this.showModal = true;
             console.log(this.selectedTask);
         },
-        saveAndClose() {
-            // Save the task to the database here...
-            this.showModal = false;
+        async saveAndClose() {
+            console.log(this.selectedTask);
+            const response = fetch("/api/task/edit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(this.selectedTask),
+            });
+            window.location.reload();
         },
     },
     data() {
         return {
-            people: ["Anton", "Oleg", "Ivan", "Petr"],
+            people: [],
             days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
             blocks: [],
             dragging: false,
@@ -76,6 +103,7 @@ createApp({
             newBlock: null,
             showModal: false,
             selectedTask: null,
+            person: "",
         };
     },
 }).mount("#app");
