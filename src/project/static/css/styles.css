@@ -17,24 +17,43 @@ th {
   border-radius: 3px;
 }
 .modal {
-  position: fixed; /* Position it fixed to the viewport */
-  top: 50%; /* Center it vertically */
-  left: 50%; /* Center it horizontally */
-  transform: translate(-50%, -50%); /* Adjust for the size of the modal */
-  z-index: 1000; /* Make it appear in front of other objects */
-  background: white; /* Give it a background */
-  padding: 20px; /* Add some padding */
-  border-radius: 10px; /* Round the corners */
-  width: 80%; /* Make it take up 80% of the viewport width */
-  max-width: 400px; /* But don't let it get too wide */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-  z-index: 999; /* Just below the modal */
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 30%; /* Could be more or less, depending on screen size */
+  border-radius: 10px; /* This will make the corners rounded */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.button {
+  width: 40px;
+}
+.svg {
+  size: 30px;
+}
+.day_options {
+  color: black;
+}
+.disabled-day {
+  background-color: #ccc; /* This will make Saturday and Sunday gray */
+  pointer-events: none; /* This will disable all interactions with Saturday and Sunday */
 }

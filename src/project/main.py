@@ -62,7 +62,7 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/api/schedule")
+@app.get("/schedule")
 async def get_schedule():
     blocks = await collection.find().to_list(1000)
     for block in blocks:
@@ -70,34 +70,41 @@ async def get_schedule():
     return {"blocks": blocks}
 
 
-@app.post("/api/task/add")
-async def update_schedule(body: dict):
-    body_id = body.pop("_id")
-    await collection.update_one({"_id": ObjectId(body_id)}, {"$set": body})
-
-    return {"message": "Schedule updated successfully"}
-
-
-@app.post("/api/task/edit")
-async def edit_task(body: dict):
-    body_id = body.pop("_id")
-    await collection.update_one({"_id": ObjectId(body_id)}, {"$set": body})
-
-    return {"message": "Task updated successfully"}
-
-
-@app.get("/api/people")
-async def get_people():
-    people = await collection.find({}).to_list(1000)
-    response = {}
-    for person in people:
-        person["_id"] = str(person["_id"])
-        response[person["person"]] = str(person["_id"])
-    print(response)
-    return response
-
-
-@app.post("/api/person/add")
+@app.post("/person/add")
 async def add_person(block: Block):
-    await collection.insert_one(block.model_dump())
-    return {"message": "Person added successfully"}
+    block_dict = block.model_dump()
+    result = await collection.insert_one(block_dict)
+    return {"_id": str(result.inserted_id)}
+
+
+@app.post("/task/add")
+async def add_task(block: Block):
+    form_data = block.model_dump()
+    person = form_data.get("person")
+    task = form_data.get("task")
+    start_day = form_data.get("start_day")
+    end_day = form_data.get("end_day")
+    await collection.update_one(
+        {"person": person, "task": None}, {"$set": {"task": task, "start_day": start_day, "end_day": end_day}}
+    )
+
+    return {"message": "Task added successfully"}
+
+
+# @app.post("/task/edit")
+# async def edit_task(body: dict):
+#     body_id = body.pop("_id")
+#     await collection.update_one({"_id": ObjectId(body_id)}, {"$set": body})
+
+#     return {"message": "Task updated successfully"}
+
+
+# @app.get("/people")
+# async def get_people():
+#     people = await collection.find({}).to_list(1000)
+#     response = {}
+#     for person in people:
+#         person["_id"] = str(person["_id"])
+#         response[person["person"]] = str(person["_id"])
+#     print(response)
+#     return response

@@ -1,15 +1,78 @@
 const { createApp } = Vue;
 
+const Modal = {
+    props: ["show", "onClose"],
+    emits: ["update:show"],
+    template: "#modal-template",
+    methods: {
+        close() {
+            this.$emit("update:show", false);
+        },
+        async addNewTask() {
+            this.task = document.getElementById("task").value;
+            this.person = document.getElementById("person").value;
+            this.start_day = document.getElementById("start_day").value;
+            this.end_day = document.getElementById("end_day").value;
+            if (
+                !this.task ||
+                !this.person ||
+                !this.start_day ||
+                !this.end_day
+            ) {
+                alert("Please fill all fields");
+                return;
+            }
+            this.showModal = false;
+
+            const response = await fetch("/task/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    task: this.task,
+                    person: this.person,
+                    start_day: this.start_day,
+                    end_day: this.end_day,
+                }),
+            });
+            if (!response.ok) {
+                console.error("Failed to add task");
+            }
+        },
+    },
+    data() {
+        return {
+            days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+            task: "",
+            person: "",
+            start_day: "",
+            end_day: "",
+        };
+    },
+};
+
 createApp({
+    components: {
+        Modal,
+    },
     created() {
         this.fetchSchedule();
-        this.fetchPeople();
     },
     methods: {
+        async fetchSchedule() {
+            const response = await fetch("/schedule");
+            const data = await response.json();
+            this.blocks = data.blocks;
+            console.log(this.blocks);
+            this.blocks.forEach((block) => {
+                this.people.push({ id: block._id, person: block.person });
+            });
+        },
         async addPerson() {
-            const person = prompt("Enter name:");
+            const person = prompt("Enter person's name:");
             if (!person) return;
-            const response = await fetch("/api/person/add", {
+            const response = await fetch("/person/add", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -17,18 +80,14 @@ createApp({
                 body: JSON.stringify({ person }),
             });
             if (response.ok) {
-                this.people.push(person);
+                this.people.push({ id: response.id, person });
             }
         },
-        async fetchPeople() {
-            const response = await fetch("/api/people");
-            const data = await response.json();
-            this.people = Object.values(data.people);
-        },
-        async fetchSchedule() {
-            const response = await fetch("/api/schedule");
-            const data = await response.json();
-            this.blocks = data.blocks;
+        getTask(person, day) {
+            const block = this.blocks.find(
+                (block) => block.person === person && this.isInRange(block, day)
+            );
+            return block || null;
         },
         startDrag(person, day) {
             this.dragging = true;
@@ -37,16 +96,7 @@ createApp({
         endDrag(person, day, personIndex) {
             if (!this.dragging) return;
             this.dragging = false;
-            const task = prompt("Enter task:");
-            if (!task) return;
-            this.newBlock = {
-                _id: personIndex,
-                person,
-                task,
-                start_day: this.dragStart.day,
-                end_day: day,
-            };
-            this.addTask(this.newBlock);
+            this.showModal = true;
         },
         isBlock(person, day) {
             return this.blocks.some(
@@ -59,43 +109,16 @@ createApp({
             const endOrder = this.days.indexOf(block.end_day);
             return dayOrder >= startOrder && dayOrder <= endOrder;
         },
-        getTask(person, day) {
-            const block = this.blocks.find(
-                (block) => block.person === person && this.isInRange(block, day)
-            );
-            return block || null;
-        },
-        async addTask(newBlock) {
-            const response = await fetch("/api/task/add", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(newBlock),
-            });
-            const data = await response.json();
-            console.log(data.message);
-        },
-        openModal(task) {
-            this.selectedTask = task;
+
+        openAddTaskModal() {
             this.showModal = true;
-            console.log(this.selectedTask);
         },
-        async saveAndClose() {
-            console.log(this.selectedTask);
-            const response = fetch("/api/task/edit", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(this.selectedTask),
-            });
-            window.location.reload();
+        closeModal() {
+            this.showModal = false;
         },
     },
     data() {
         return {
-            people: [],
             days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
             blocks: [],
             dragging: false,
@@ -103,7 +126,7 @@ createApp({
             newBlock: null,
             showModal: false,
             selectedTask: null,
-            person: "",
+            people: [],
         };
     },
 }).mount("#app");
