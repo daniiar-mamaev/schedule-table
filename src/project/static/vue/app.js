@@ -36,6 +36,20 @@ const updateTask = {
                 this.close();
             }
         },
+        async deleteTask() {
+            const response = await fetch("/task/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ task_id: this.opened_task._id }),
+            });
+            if (!response.ok) {
+                console.error("Failed to delete task");
+            } else {
+                window.location.reload();
+            }
+        },
     },
     data() {
         return {

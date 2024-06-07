@@ -3,7 +3,10 @@
     <div class="modal" v-if="show">
         <div class="modal-content">
             <div class="flex flex-col w-full">
-                <div class="font-bold mb-4" v-text="opened_task.person"></div>
+                <div
+                    class="font-bold mb-4 text-2xl"
+                    v-text="opened_task.person"
+                ></div>
 
                 <label for="task">Task:</label>
                 <input
@@ -32,13 +35,23 @@
                         v-text="day"
                     ></option>
                 </select>
-                <button
-                    class="p-5 bg-blue-400 w-36 mt-5 text-white rounded-lg cursor-pointer text-center"
-                    id="submit"
-                    @click="updateTask()"
-                >
-                    Submit
-                </button>
+                <div class="flex justify-evenly">
+                    <button
+                        class="p-5 h-20 bg-blue-400 w-36 mt-5 text-white rounded-lg cursor-pointer text-center"
+                        id="submit"
+                        @click="updateTask()"
+                    >
+                        Submit
+                    </button>
+                    <button
+                        v-if="opened_task._id"
+                        class="p-5 h-20 bg-red-400 w-36 mt-5 text-white rounded-lg cursor-pointer text-center"
+                        id="submit"
+                        @click="deleteTask()"
+                    >
+                        Delete
+                    </button>
+                </div>
             </div>
             <span class="self-start cursor-pointer ml-2 text-2xl" @click="close"
                 >&times;</span

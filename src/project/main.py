@@ -70,3 +70,12 @@ async def add_task(body: dict):
     )
 
     return {"message": "Task updated successfully"}
+
+
+@router.post("/task/delete")
+async def delete_task(body: dict):
+    task_id = body.get("task_id")
+    await collection_task.update_one(
+        {"_id": ObjectId(task_id)}, {"$set": {"task": None, "start_day": None, "end_day": None}}
+    )
+    return {"message": "Task deleted successfully"}
