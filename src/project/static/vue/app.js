@@ -1,51 +1,42 @@
 const { createApp } = Vue;
 
-const Modal = {
-    props: ["show", "onClose"],
+const updateTask = {
+    props: ["show", "onClose", "opened_task_id"],
     emits: ["update:show"],
     template: "#modal-template",
     methods: {
         close() {
             this.$emit("update:show", false);
         },
-        async addNewTask() {
+        async updateTask() {
+            this.task_id = this.opened_task_id;
             this.task = document.getElementById("task").value;
-            this.person = document.getElementById("person").value;
             this.start_day = document.getElementById("start_day").value;
             this.end_day = document.getElementById("end_day").value;
-            if (
-                !this.task ||
-                !this.person ||
-                !this.start_day ||
-                !this.end_day
-            ) {
+            if (!this.task || !this.start_day || !this.end_day) {
                 alert("Please fill all fields");
                 return;
             }
-            this.showModal = false;
 
-            const response = await fetch("/task/add", {
+            const response = await fetch("/task/update", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    task_id: this.task_id,
                     task: this.task,
-                    person: this.person,
                     start_day: this.start_day,
                     end_day: this.end_day,
                 }),
             });
-            if (!response.ok) {
-                console.error("Failed to add task");
-            }
         },
     },
     data() {
         return {
             days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+            task_id: "",
             task: "",
-            person: "",
             start_day: "",
             end_day: "",
         };
@@ -54,7 +45,7 @@ const Modal = {
 
 createApp({
     components: {
-        Modal,
+        updateTask,
     },
     created() {
         this.fetchSchedule();
@@ -63,8 +54,7 @@ createApp({
         async fetchSchedule() {
             const response = await fetch("/schedule");
             const data = await response.json();
-            this.blocks = data.blocks;
-            console.log(this.blocks);
+            this.blocks = data.task_list;
             this.blocks.forEach((block) => {
                 this.people.push({ id: block._id, person: block.person });
             });
@@ -77,15 +67,15 @@ createApp({
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ person }),
+                body: JSON.stringify({ name: person }),
             });
-            if (response.ok) {
-                this.people.push({ id: response.id, person });
+            if (!response.ok) {
+                console.error("Failed to add person");
             }
         },
         getTask(person, day) {
             const block = this.blocks.find(
-                (block) => block.person === person && this.isInRange(block, day)
+                (block) => block.person === person.person
             );
             return block || null;
         },
@@ -100,7 +90,8 @@ createApp({
         },
         isBlock(person, day) {
             return this.blocks.some(
-                (block) => block.person === person && this.isInRange(block, day)
+                (block) =>
+                    block.person === person.person && this.isInRange(block, day)
             );
         },
         isInRange(block, day) {
@@ -109,9 +100,9 @@ createApp({
             const endOrder = this.days.indexOf(block.end_day);
             return dayOrder >= startOrder && dayOrder <= endOrder;
         },
-
-        openAddTaskModal() {
+        openModal(task) {
             this.showModal = true;
+            this.opened_task_id = task._id;
         },
         closeModal() {
             this.showModal = false;
@@ -123,9 +114,8 @@ createApp({
             blocks: [],
             dragging: false,
             dragStart: null,
-            newBlock: null,
             showModal: false,
-            selectedTask: null,
+            opened_task_id: null,
             people: [],
         };
     },

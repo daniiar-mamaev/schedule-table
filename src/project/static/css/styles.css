@@ -50,10 +50,14 @@ th {
 .svg {
   size: 30px;
 }
-.day_options {
-  color: black;
-}
+
 .disabled-day {
   background-color: #ccc; /* This will make Saturday and Sunday gray */
   pointer-events: none; /* This will disable all interactions with Saturday and Sunday */
+}
+.dragged-block {
+  background-color: gray;
+}
+.cell:hover {
+  background-color: #f2f2f2;
 }

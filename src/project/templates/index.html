@@ -27,17 +27,18 @@
                         <td v-text="person.person"></td>
                         <td
                             v-for="day in days"
+                            class="cell"
                             :class="{ 'disabled-day': day === 'Sat' || day === 'Sun' }"
-                            @click="day !== 'Sat' && day !== 'Sun' ? openAddTaskModal() : null"
+                            @click="day !== 'Sat' && day !== 'Sun' ? openModal(getTask(person, day)) : null"
                             @dragstart="startDrag(person, day)"
                             @dragend="endDrag(person, day)"
                         >
-                            <div
-                                v-if="isBlock(person, day)"
-                                class="block"
-                                @click.stop="openModal(getTask(person, day))"
-                                v-text="getTask(person, day).task"
-                            ></div>
+                            <div v-if="isBlock(person, day)" class="block">
+                                <span
+                                    v-if="getTask(person, day)"
+                                    v-text="getTask(person, day).task"
+                                ></span>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -58,11 +59,11 @@
                     />
                 </svg>
             </button>
-            <modal
+            <update-task
                 :show="showModal"
                 @update:show="showModal = $event"
-                @close="closeModal"
-            ></modal>
+                :opened_task_id="opened_task_id"
+            ></update-task>
         </div>
     </body>
 </html>

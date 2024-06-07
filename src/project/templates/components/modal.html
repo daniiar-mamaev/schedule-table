@@ -1,21 +1,15 @@
 {% macro render() %}
 <template id="modal-template">
-    <div id="myModal" class="modal" v-if="show">
+    <div class="modal" v-if="show">
         <div class="modal-content">
             <span class="close" @click="close">&times;</span>
+
+            <input id="task_id" type="text" value="opened_task_id" hidden />
             <label for="task">Task:</label><br />
             <input type="text" id="task" v-model="task" required /><br />
-            <label for="person">Person:</label><br />
-            <input
-                type="text"
-                id="person"
-                v-model="person"
-                value="person.person"
-                required
-            /><br />
-            <label for="start_day">Start Day:</label><br />
+            <label for="start_day">Start day:</label><br />
             <select id="start_day" v-model="start_day" required>
-                <option disabled value="">Please select a day</option>
+                <option disabled value="">Select a day</option>
                 <option
                     v-for="day in days"
                     :key="day"
@@ -23,18 +17,17 @@
                     v-text="day"
                 ></option></select
             ><br />
-            <label for="end_day">End Day:</label><br />
+            <label for="end_day">End day:</label><br />
             <select id="end_day" v-model="end_day" required>
-                <option disabled value="">Please select a day</option>
+                <option disabled value="">Select a day</option>
                 <option
-                class="day_options"
                     v-for="day in days.slice(days.indexOf(start_day))"
                     :key="day"
                     :value="day"
                     v-text="day"
                 ></option></select
             ><br />
-            <button id="submit" @click="addNewTask()">Submit</button>
+            <button id="submit" @click="updateTask()">Submit</button>
         </div>
     </div>
 </template>
