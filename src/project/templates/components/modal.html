@@ -2,32 +2,47 @@
 <template id="modal-template">
     <div class="modal" v-if="show">
         <div class="modal-content">
-            <span class="close" @click="close">&times;</span>
+            <div class="flex flex-col w-full">
+                <div class="font-bold mb-4" v-text="opened_task.person"></div>
 
-            <input id="task_id" type="text" value="opened_task_id" hidden />
-            <label for="task">Task:</label><br />
-            <input type="text" id="task" v-model="task" required /><br />
-            <label for="start_day">Start day:</label><br />
-            <select id="start_day" v-model="start_day" required>
-                <option disabled value="">Select a day</option>
-                <option
-                    v-for="day in days"
-                    :key="day"
-                    :value="day"
-                    v-text="day"
-                ></option></select
-            ><br />
-            <label for="end_day">End day:</label><br />
-            <select id="end_day" v-model="end_day" required>
-                <option disabled value="">Select a day</option>
-                <option
-                    v-for="day in days.slice(days.indexOf(start_day))"
-                    :key="day"
-                    :value="day"
-                    v-text="day"
-                ></option></select
-            ><br />
-            <button id="submit" @click="updateTask()">Submit</button>
+                <label for="task">Task:</label>
+                <input
+                    type="text"
+                    id="task"
+                    v-model="opened_task.task"
+                    required
+                />
+                <label for="start_day">Start day:</label>
+                <select id="start_day" v-model="opened_task.start_day" required>
+                    <option disabled value=""></option>
+                    <option
+                        v-for="day in days"
+                        :key="day"
+                        :value="day"
+                        v-text="day"
+                    ></option>
+                </select>
+                <label for="end_day">End day:</label>
+                <select id="end_day" v-model="opened_task.end_day" required>
+                    <option disabled value="">Select a day</option>
+                    <option
+                        v-for="day in days.indexOf(opened_task.start_day) !== -1 ? days.slice(days.indexOf(opened_task.start_day)) : days"
+                        :key="day"
+                        :value="day"
+                        v-text="day"
+                    ></option>
+                </select>
+                <button
+                    class="p-5 bg-blue-400 w-36 mt-5 text-white rounded-lg cursor-pointer text-center"
+                    id="submit"
+                    @click="updateTask()"
+                >
+                    Submit
+                </button>
+            </div>
+            <span class="self-start cursor-pointer ml-2 text-2xl" @click="close"
+                >&times;</span
+            >
         </div>
     </div>
 </template>

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Schedule Table</title>
-        <link rel="stylesheet" href="/static/css/styles.css" />
+        <link href="/static/css/output.css" rel="stylesheet" />
         <!-- Vue -->
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -15,7 +15,7 @@
     {% import "components/modal.html" as modal %} {{ modal.render() }}
     <body>
         <div id="app">
-            <table>
+            <table class="m-5 w-10/12">
                 <thead>
                     <tr>
                         <th>Person</th>
@@ -23,17 +23,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="person in people" :key="person">
-                        <td v-text="person.person"></td>
+                    <tr class="h-14" v-for="person in people" :key="person">
+                        <td
+                            class="w-56 font-semibold"
+                            v-text="person.person"
+                        ></td>
                         <td
                             v-for="day in days"
-                            class="cell"
+                            class="w-64 hover:bg-gray-200"
                             :class="{ 'disabled-day': day === 'Sat' || day === 'Sun' }"
                             @click="day !== 'Sat' && day !== 'Sun' ? openModal(getTask(person, day)) : null"
-                            @dragstart="startDrag(person, day)"
-                            @dragend="endDrag(person, day)"
                         >
-                            <div v-if="isBlock(person, day)" class="block">
+                            <div
+                                v-if="isBlock(person, day)"
+                                class="bg-[#3498db] text-white p-1 rounded cursor-pointer"
+                            >
                                 <span
                                     v-if="getTask(person, day)"
                                     v-text="getTask(person, day).task"
@@ -43,7 +47,7 @@
                     </tr>
                 </tbody>
             </table>
-            <button @click="addPerson()" class="button">
+            <button class="w-7 ml-20" @click="addPerson()">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -62,7 +66,7 @@
             <update-task
                 :show="showModal"
                 @update:show="showModal = $event"
-                :opened_task_id="opened_task_id"
+                :opened_task="opened_task"
             ></update-task>
         </div>
     </body>

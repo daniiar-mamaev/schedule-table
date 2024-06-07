@@ -1,7 +1,7 @@
 const { createApp } = Vue;
 
 const updateTask = {
-    props: ["show", "onClose", "opened_task_id"],
+    props: ["show", "onClose", "opened_task"],
     emits: ["update:show"],
     template: "#modal-template",
     methods: {
@@ -9,7 +9,7 @@ const updateTask = {
             this.$emit("update:show", false);
         },
         async updateTask() {
-            this.task_id = this.opened_task_id;
+            this.task_id = this.opened_task._id;
             this.task = document.getElementById("task").value;
             this.start_day = document.getElementById("start_day").value;
             this.end_day = document.getElementById("end_day").value;
@@ -30,6 +30,11 @@ const updateTask = {
                     end_day: this.end_day,
                 }),
             });
+            if (!response.ok) {
+                console.error("Failed to update task");
+            } else {
+                this.close();
+            }
         },
     },
     data() {
@@ -71,6 +76,8 @@ createApp({
             });
             if (!response.ok) {
                 console.error("Failed to add person");
+            } else {
+                window.location.reload();
             }
         },
         getTask(person, day) {
@@ -78,15 +85,6 @@ createApp({
                 (block) => block.person === person.person
             );
             return block || null;
-        },
-        startDrag(person, day) {
-            this.dragging = true;
-            this.dragStart = { person, day };
-        },
-        endDrag(person, day, personIndex) {
-            if (!this.dragging) return;
-            this.dragging = false;
-            this.showModal = true;
         },
         isBlock(person, day) {
             return this.blocks.some(
@@ -102,7 +100,7 @@ createApp({
         },
         openModal(task) {
             this.showModal = true;
-            this.opened_task_id = task._id;
+            this.opened_task = task;
         },
         closeModal() {
             this.showModal = false;
@@ -115,8 +113,9 @@ createApp({
             dragging: false,
             dragStart: null,
             showModal: false,
-            opened_task_id: null,
+            opened_task: null,
             people: [],
+            draggedBlock: null,
         };
     },
 }).mount("#app");

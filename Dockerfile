@@ -14,4 +14,4 @@ RUN rm -rf /root/.cache/pip/*
 
 ENV PORT 80
 
-CMD exec poetry run uvicorn project.main:app --host 0.0.0.0 --port $PORT
+CMD exec poetry run uvicorn project:app --host 0.0.0.0 --port $PORT

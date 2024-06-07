@@ -9,4 +9,4 @@ if (Test-Path .env) {
     }
 }
 
-poetry run uvicorn src.project.main:app --reload --log-level debug
+poetry run uvicorn src.project:app --reload --log-level debug
